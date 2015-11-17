@@ -1,0 +1,203 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AlgoApp
+{
+    class Algo
+    {
+        #region Length of the longest valid substring
+        //Given a string consisting of opening and closing parenthesis, find length of the longest valid parenthesis substring.
+
+        //Examples:
+
+        //Input : ((()
+        //Output : 2
+        //Explanation : ()
+
+        //Input: )()())
+        //Output : 4
+        //Explanation: ()() 
+
+        //Input:  ()(()))))
+        //Output: 6
+        //Explanation:  ()(()))
+        //O(n) 
+        public static int GetLengthOfLongestValidSubstring(String str)
+        {
+            Stack<int> stack = new Stack<int>();
+            stack.Push(-1); //Push -1 as 1st one since there is no substring we found yet
+            int result = 0;
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (str[i] == '(') //Found open bracket, so push index of it
+                {
+                    stack.Push(i);
+                }
+                else
+                {
+                    int ii = stack.Pop();
+                    if (stack.Count != 0)
+                        result = Math.Max(result, i - stack.Peek());
+                    else
+                        stack.Push(i);
+                }
+            }
+            return result;
+        }
+
+        #endregion //Length of the longest valid substring
+
+        #region Find pairs such a+b = c+d
+        //Find four elements a, b, c and d in an array such that a+b = c+d
+        //Time complexity of map insert and search is actually O(Log n) instead of O(1). So below implementation is O(n2 Log n).
+        public static List<KeyValuePair<int,int>> GetPairs(int[] array)
+        {
+            List<KeyValuePair<int, int>> list = new List<KeyValuePair<int, int>>();
+            Dictionary<int, KeyValuePair<int, int>> map = new Dictionary<int, KeyValuePair<int, int>>();
+            for (int i = 0; i < array.Length; i++)
+            {
+                for (int j = i + 1; j < array.Length; j++)
+                {
+                    int sum = array[i] + array[j];
+                    if (map.ContainsKey(sum))
+                    {
+                        KeyValuePair<int, int> pair = map[sum];
+                        list.Add(new KeyValuePair<int,int>(array[i], array[j]));
+                        list.Add(pair);
+                    }
+                    else
+                    {
+                        map.Add(sum, new KeyValuePair<int, int>(array[i], array[j]));
+                    }
+                }
+            }
+            return list;
+        }
+
+        #endregion //Find pairs such a+b = c+d
+
+        #region Design a data structure that supports insert, delete, search and getRandom in constant time
+        public static void DataStructure()
+        {
+            MyDS ds = new MyDS();
+            ds.Add(10);
+            ds.Add(20);
+            ds.Add(30);
+            ds.Add(40);
+            int kk = ds.Search(30);
+            ds.Remove(20);
+            ds.Add(50);
+            ds.Search(50);
+        }
+        #endregion //Design a data structure that supports insert, delete, search and getRandom in constant time
+    }
+
+    //insert(x) - hashing to support first 3 operations in Θ(1) time.
+    //1) Check if x is already present by doing a hash map lookup.
+    //2) If not present, then insert it at the end of the array.
+    //3) Add in hash table also, x is added as key and last array index as index.
+
+    //remove(x) - hashing to support first 3 operations in Θ(1) time.
+    //1) Check if x is present by doing a hash map lookup.
+    //2) If present, then find its index and remove it from hash map.
+    //3) Swap the last element with this element in array and remove the last element.
+    //Swapping is done because the last element can be removed in O(1) time.
+    //4) Update index of last element in hash map.
+
+    //getRandom()
+    //1) Generate a random number from 0 to last index.
+    //2) Return the array element at the randomly generated index.
+
+    //search(x) - hashing to support first 3 operations in Θ(1) time.
+    //Do a lookup for x in hash map.
+    class MyDS
+    {
+        ArrayList list;
+        Hashtable table;
+
+        public MyDS()
+        {
+            list = new ArrayList();
+            table = new Hashtable();
+        }
+
+        public void Add(int x)
+        {
+            if (table.ContainsKey(x))
+                return;
+
+            int size = list.Count;
+            list.Add(x);
+
+            table.Add(x, size);
+        }
+
+        public void Remove(int x)
+        {
+            if (!table.ContainsKey(x))
+                return;
+
+            int indexinarray = (int) table[x];
+            table.Remove(x);
+
+            //swap last elemt of arraylist with the element of the above found index
+            int temp = (int)list[list.Count - 1];
+            list[list.Count - 1] = list[indexinarray];
+            list[indexinarray] = temp;
+
+            list.RemoveAt(list.Count - 1);
+            table[temp] = indexinarray;
+
+        }
+
+        public int Search(int x)
+        {
+            return (int)table[x];
+        }
+
+        public int getRandom()
+        {
+            // Find a random index from 0 to size - 1
+            Random rand = new Random();  // Choose a different seed
+            int index = rand.Next(list.Count);
+
+            // Return element at randomly picked index
+            return (int)list[index];
+        }
+    }
+}
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AlgoApp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //int result = Algo.GetLengthOfLongestValidSubstring("((()()"); //Out put 4 - ()()
+            //int result = Algo.GetLengthOfLongestValidSubstring("()");//output - 2 ()\
+
+            //int result = Algo.GetLengthOfLongestValidSubstring("(())");//output - 4 (())
+            //Console.WriteLine(result.ToString());
+
+            //List<KeyValuePair<int, int>> list = Algo.GetPairs(new int[] { 3, 4, 7, 1, 2, 9, 8 });   
+
+            Algo.DataStructure();
+
+            Console.Read();
+        }
+    }
+}
+
